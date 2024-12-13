@@ -1,0 +1,731 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "9a57c4c6",
+   "metadata": {},
+   "source": [
+    "# Eat Safe, Love"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "064ef857",
+   "metadata": {},
+   "source": [
+    "## Notebook Set Up"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "3ecdd008",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pymongo import MongoClient\n",
+    "import pandas as pd\n",
+    "from pprint import pprint"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "59390c4a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Create an instance of MongoClient\n",
+    "mongo = MongoClient(port=27017)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "71e373c1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# assign the uk_food database to a variable name\n",
+    "db = mongo['uk_food']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "18ab463c",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['establishments']\n"
+     ]
+    }
+   ],
+   "source": [
+    "# review the collections in our database\n",
+    "print(db.list_collection_names())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "11c9f11b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# assign the collection to a variable\n",
+    "establishments = db['establishments']"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d5671434",
+   "metadata": {},
+   "source": [
+    "## Part 3: Exploratory Analysis\n",
+    "Unless otherwise stated, for each question: \n",
+    "* Use `count_documents` to display the number of documents contained in the result.\n",
+    "* Display the first document in the results using `pprint`.\n",
+    "* Convert the result to a Pandas DataFrame, print the number of rows in the DataFrame, and display the first 10 rows."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "314bd884",
+   "metadata": {},
+   "source": [
+    "### 1. Which establishments have a hygiene score equal to 20?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "c2da7648",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Total document count: 41\n",
+      "{'BusinessName': 'The Chase Rest Home',\n",
+      " '_id': ObjectId('675784e5c6a5866a4797210d'),\n",
+      " 'scores': {'Hygiene': 20}}\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Find the establishments with a hygiene score of 20\n",
+    "query = {'scores.Hygiene': 20}\n",
+    "fields = {'BusinessName': 1, 'scores.Hygiene': 1}\n",
+    "\n",
+    "# Use count_documents to display the number of documents in the result\n",
+    "document_count = establishments.count_documents(query)\n",
+    "print(\"Total document count:\", document_count)\n",
+    "\n",
+    "# Display the first document in the results using pprint\n",
+    "results = establishments.find(query, fields)\n",
+    "pprint(results[0])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "a6e5cece",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Rows in DataFrame:  41\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>_id</th>\n",
+       "      <th>BusinessName</th>\n",
+       "      <th>HygieneScore</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>675784e5c6a5866a4797210d</td>\n",
+       "      <td>The Chase Rest Home</td>\n",
+       "      <td>20</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>675784e5c6a5866a47972490</td>\n",
+       "      <td>Brenalwood</td>\n",
+       "      <td>20</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>675784e5c6a5866a47972797</td>\n",
+       "      <td>Melrose Hotel</td>\n",
+       "      <td>20</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>675784e5c6a5866a47972988</td>\n",
+       "      <td>Seaford Pizza</td>\n",
+       "      <td>20</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>675784e5c6a5866a4797299f</td>\n",
+       "      <td>Golden Palace</td>\n",
+       "      <td>20</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>675784e6c6a5866a47973335</td>\n",
+       "      <td>Ashby's Butchers</td>\n",
+       "      <td>20</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>675784e6c6a5866a47973557</td>\n",
+       "      <td>South Sea Express Cuisine</td>\n",
+       "      <td>20</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7</th>\n",
+       "      <td>675784e6c6a5866a47974a82</td>\n",
+       "      <td>Golden Palace</td>\n",
+       "      <td>20</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>675784e6c6a5866a47974ec6</td>\n",
+       "      <td>The Tulip Tree</td>\n",
+       "      <td>20</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9</th>\n",
+       "      <td>675784e7c6a5866a479756d5</td>\n",
+       "      <td>F &amp; S</td>\n",
+       "      <td>20</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                        _id               BusinessName  HygieneScore\n",
+       "0  675784e5c6a5866a4797210d        The Chase Rest Home            20\n",
+       "1  675784e5c6a5866a47972490                 Brenalwood            20\n",
+       "2  675784e5c6a5866a47972797              Melrose Hotel            20\n",
+       "3  675784e5c6a5866a47972988              Seaford Pizza            20\n",
+       "4  675784e5c6a5866a4797299f              Golden Palace            20\n",
+       "5  675784e6c6a5866a47973335           Ashby's Butchers            20\n",
+       "6  675784e6c6a5866a47973557  South Sea Express Cuisine            20\n",
+       "7  675784e6c6a5866a47974a82              Golden Palace            20\n",
+       "8  675784e6c6a5866a47974ec6             The Tulip Tree            20\n",
+       "9  675784e7c6a5866a479756d5                      F & S            20"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Convert the result to a Pandas DataFrame\n",
+    "result_df = pd.DataFrame(results)\n",
+    "# Display the number of rows in the DataFrame\n",
+    "print(\"Rows in DataFrame: \", len(result_df))\n",
+    "# Display the first 10 rows of the DataFrame\n",
+    "result_df['HygieneScore'] = result_df['scores'].apply(lambda x: x['Hygiene'])\n",
+    "result_df.drop(columns=['scores'], inplace=True)\n",
+    "result_df.head(10)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0ef4395a",
+   "metadata": {},
+   "source": [
+    "### 2. Which establishments in London have a `RatingValue` greater than or equal to 4?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "93c63829",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Total document count: 0\n"
+     ]
+    }
+   ],
+   "source": [
+    "query = {\n",
+    "    \"LocalAuthorityName\": {\"$regex\": \"London\", \"$options\": \"i\"},\n",
+    "    \"RatingValue\": {\"$gte\": \"4\"}  # Adjust this based on type\n",
+    "}\n",
+    "fields = {\"LocalAuthorityName\": 1, \"RatingValue\": 1}\n",
+    "\n",
+    "# Count matching documents\n",
+    "document_count = establishments.count_documents(query)\n",
+    "print(\"Total document count:\", document_count)\n",
+    "\n",
+    "# Fetch and display results\n",
+    "results = list(establishments.find(query, fields))\n",
+    "if results:\n",
+    "    pprint(results[0])  # Display the first document"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "07e24ccb",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Rows in DataFrame:  0\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "Empty DataFrame\n",
+       "Columns: []\n",
+       "Index: []"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Convert the result to a Pandas DataFrame\n",
+    "result_df = pd.DataFrame(results)\n",
+    "\n",
+    "# Display the number of rows in the DataFrame\n",
+    "print(\"Rows in DataFrame: \", len(result_df))\n",
+    "\n",
+    "# Display the first 10 rows of the DataFrame\n",
+    "result_df.head(10)"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "id": "4e570caf",
+   "metadata": {},
+   "source": [
+    "### 3. What are the top 5 establishments with a `RatingValue` rating value of 5, sorted by lowest hygiene score, nearest to the new restaurant added, \"Penang Flavours\"?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "7f599f3d",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{'_id': ObjectId('675784e8c6a5866a4797796b'), 'BusinessName': 'Volunteer', 'RatingValue': 5, 'scores': {'Hygiene': 0}}\n",
+      "{'_id': ObjectId('675784e8c6a5866a47977985'), 'BusinessName': 'Plumstead Manor Nursery', 'RatingValue': 5, 'scores': {'Hygiene': 0}}\n",
+      "{'_id': ObjectId('675784e8c6a5866a47977987'), 'BusinessName': 'Atlantic Fish Bar', 'RatingValue': 5, 'scores': {'Hygiene': 0}}\n",
+      "{'_id': ObjectId('675784e8c6a5866a47977943'), 'BusinessName': 'Iceland', 'RatingValue': 5, 'scores': {'Hygiene': 0}}\n",
+      "{'_id': ObjectId('675784e8c6a5866a47977950'), 'BusinessName': 'Howe and Co Fish and Chips - Van 17', 'RatingValue': 5, 'scores': {'Hygiene': 0}}\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Find the coordinates of \"Penang Flavours\"\n",
+    "penang_flavors = establishments.find_one({\"BusinessName\": \"Penang Flavours\"}, {\"geocode.latitude\": 1, \"geocode.longitude\": 1})\n",
+    "degree_search = 0.01\n",
+    "latitude = penang_flavors[\"geocode\"][\"latitude\"]\n",
+    "longitude = penang_flavors[\"geocode\"][\"longitude\"]\n",
+    "\n",
+    "\n",
+    "# Rating value must equal 5\n",
+    "# Search within 0.01 degree on either side of the latitude and longitude.\n",
+    "query = {\n",
+    "    \"RatingValue\": 5,\n",
+    "    \"geocode.latitude\": {\"$gte\": latitude - degree_search, \"$lte\": latitude + degree_search},\n",
+    "    \"geocode.longitude\": {\"$gte\": longitude - degree_search, \"$lte\": longitude + degree_search}\n",
+    "}\n",
+    "\n",
+    "# Sort by hygiene score\n",
+    "sort = [(\"scores.Hygiene\", 1)]\n",
+    "\n",
+    "# Display top 5 \n",
+    "limit = 5\n",
+    "\n",
+    "# Print the results\n",
+    "results = list(establishments.find(query, {\"BusinessName\": 1, \"RatingValue\": 1, \"scores.Hygiene\": 1}).sort(sort).limit(limit))\n",
+    "for result in results:\n",
+    "    print(result)\n",
+    "    "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "a6ad16f7",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>_id</th>\n",
+       "      <th>BusinessName</th>\n",
+       "      <th>RatingValue</th>\n",
+       "      <th>HygieneScore</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>675784e8c6a5866a4797796b</td>\n",
+       "      <td>Volunteer</td>\n",
+       "      <td>5</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>675784e8c6a5866a47977985</td>\n",
+       "      <td>Plumstead Manor Nursery</td>\n",
+       "      <td>5</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>675784e8c6a5866a47977987</td>\n",
+       "      <td>Atlantic Fish Bar</td>\n",
+       "      <td>5</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>675784e8c6a5866a47977943</td>\n",
+       "      <td>Iceland</td>\n",
+       "      <td>5</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>675784e8c6a5866a47977950</td>\n",
+       "      <td>Howe and Co Fish and Chips - Van 17</td>\n",
+       "      <td>5</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                        _id                         BusinessName  RatingValue  \\\n",
+       "0  675784e8c6a5866a4797796b                            Volunteer            5   \n",
+       "1  675784e8c6a5866a47977985              Plumstead Manor Nursery            5   \n",
+       "2  675784e8c6a5866a47977987                    Atlantic Fish Bar            5   \n",
+       "3  675784e8c6a5866a47977943                              Iceland            5   \n",
+       "4  675784e8c6a5866a47977950  Howe and Co Fish and Chips - Van 17            5   \n",
+       "\n",
+       "   HygieneScore  \n",
+       "0             0  \n",
+       "1             0  \n",
+       "2             0  \n",
+       "3             0  \n",
+       "4             0  "
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "###### Convert result to Pandas DataFrame\n",
+    "# Convert result to Pandas DataFrame\n",
+    "result_df = pd.DataFrame(results)\n",
+    "result_df['HygieneScore'] = result_df['scores'].apply(lambda x: x['Hygiene'])\n",
+    "result_df.drop(columns=['scores'], inplace=True)\n",
+    "result_df"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "67281254",
+   "metadata": {},
+   "source": [
+    "### 4. How many establishments in each Local Authority area have a hygiene score of 0?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "4eeb227e",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of documents in the result: 55\n",
+      "[{'_id': 'Thanet', 'count': 1130},\n",
+      " {'_id': 'Greenwich', 'count': 882},\n",
+      " {'_id': 'Maidstone', 'count': 713},\n",
+      " {'_id': 'Newham', 'count': 711},\n",
+      " {'_id': 'Swale', 'count': 686},\n",
+      " {'_id': 'Chelmsford', 'count': 680},\n",
+      " {'_id': 'Medway', 'count': 672},\n",
+      " {'_id': 'Bexley', 'count': 607},\n",
+      " {'_id': 'Southend-On-Sea', 'count': 586},\n",
+      " {'_id': 'Tendring', 'count': 542}]\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Create a pipeline that:\n",
+    "# 1. Matches establishments with a hygiene score of 0\n",
+    "match_query = {\"$match\": {\"scores.Hygiene\": 0}}\n",
+    "# 2. Groups the matches by Local Authority\n",
+    "group_query = {\"$group\": {\"_id\": \"$LocalAuthorityName\", \"count\": {\"$sum\": 1}}}\n",
+    "\n",
+    "# 3. Sorts the matches from highest to lowest\n",
+    "sort_values = {\"$sort\": {\"count\": -1, \"_id\": 1}}\n",
+    "# Print the number of documents in the result\n",
+    "pipeline = [match_query, group_query, sort_values]\n",
+    "results = list(establishments.aggregate(pipeline))\n",
+    "print(\"Number of documents in the result:\", len(results))\n",
+    "\n",
+    "# Print the first 10 results\n",
+    "pprint(results[0:10])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "d8aab364",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Rows in DataFrame:  55\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>_id</th>\n",
+       "      <th>count</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>Thanet</td>\n",
+       "      <td>1130</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>Greenwich</td>\n",
+       "      <td>882</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>Maidstone</td>\n",
+       "      <td>713</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>Newham</td>\n",
+       "      <td>711</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>Swale</td>\n",
+       "      <td>686</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>Chelmsford</td>\n",
+       "      <td>680</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>Medway</td>\n",
+       "      <td>672</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7</th>\n",
+       "      <td>Bexley</td>\n",
+       "      <td>607</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>Southend-On-Sea</td>\n",
+       "      <td>586</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9</th>\n",
+       "      <td>Tendring</td>\n",
+       "      <td>542</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "               _id  count\n",
+       "0           Thanet   1130\n",
+       "1        Greenwich    882\n",
+       "2        Maidstone    713\n",
+       "3           Newham    711\n",
+       "4            Swale    686\n",
+       "5       Chelmsford    680\n",
+       "6           Medway    672\n",
+       "7           Bexley    607\n",
+       "8  Southend-On-Sea    586\n",
+       "9         Tendring    542"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Convert the result to a Pandas DataFrame\n",
+    "result_df = pd.DataFrame(results)\n",
+    "\n",
+    "# Display the number of rows in the DataFrame\n",
+    "print(\"Rows in DataFrame: \", len(result_df))\n",
+    "# Display the first 10 rows of the DataFrame\n",
+    "result_df.head(10)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f710b00f-5e74-4bed-b749-d1ec4e5774f4",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.4"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
